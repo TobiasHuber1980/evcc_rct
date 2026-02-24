@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -42,6 +44,7 @@ func NewRCTFromConfig(ctx context.Context, other map[string]any) (api.Meter, err
 		batterySocLimits   `mapstructure:",squash"`
 		batteryPowerLimits `mapstructure:",squash"`
 		Uri, Usage         string
+		Port               int
 		Capacity           float64
 		Capacity2          float64
 		ExternalPower      bool
@@ -55,6 +58,7 @@ func NewRCTFromConfig(ctx context.Context, other map[string]any) (api.Meter, err
 			MaxChargePower:    10000,
 			MaxDischargePower: 10000,
 		},
+		Port:  8899,
 		Cache: 30 * time.Second,
 	}
 
@@ -66,7 +70,7 @@ func NewRCTFromConfig(ctx context.Context, other map[string]any) (api.Meter, err
 		return nil, errors.New("missing usage")
 	}
 
-	return NewRCT(ctx, cc.Uri, cc.Usage, cc.batterySocLimits, cc.batteryPowerLimits, cc.Cache, cc.ExternalPower, cc.Capacity, cc.Capacity2)
+	return NewRCT(ctx, net.JoinHostPort(cc.Uri, strconv.Itoa(cc.Port)), cc.Usage, cc.batterySocLimits, cc.batteryPowerLimits, cc.Cache, cc.ExternalPower, cc.Capacity, cc.Capacity2)
 }
 
 // NewRCT creates an RCT meter
